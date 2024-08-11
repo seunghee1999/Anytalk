@@ -12,13 +12,15 @@ body {
 }
 
 .container {
-    width: 90%; /* 화면 좌우 여백 추가 */
+    width: 90%;
     max-width: 600px;
     text-align: center;
     position: relative;
     height: 100%;
     display: flex;
     flex-direction: column;
+    padding-left: 10px; /* 왼쪽 여백 */
+    padding-right: 10px; /* 오른쪽 여백 */
 }
 
 header {
@@ -34,8 +36,6 @@ header {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    padding: 0 10px;
     position: relative;
 }
 
@@ -44,21 +44,21 @@ h1 {
     margin: 0;
     text-align: center;
     flex-grow: 1;
-    cursor: pointer; /* 제목을 클릭할 수 있도록 */
+    cursor: pointer;
 }
 
-.settings-button {
-    background: none;
-    border: none;
-    color: #333;
-    font-size: 1.2em;
-    cursor: pointer;
+.right-buttons {
     position: absolute;
     right: 10px;
+    display: flex;
+    gap: 5px;
+    font-size: 0.8em;
 }
 
-.settings-button:hover {
-    color: darkred;
+.plain-text {
+    color: #000;
+    cursor: pointer;
+    font-size: 0.8em; /* 글씨 크기 조정 */
 }
 
 #chatbox {
@@ -158,41 +158,6 @@ h1 {
     border-radius: 10px;
     font-size: 1.2em;
     z-index: 200;
-}
-
-.settings-content {
-    background-color: #444;
-    padding: 10px;
-    border-radius: 5px;
-    position: absolute;
-    top: 50px;
-    right: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    z-index: 150;
-}
-
-.dropdown-item {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.dropdown-item button {
-    background-color: #000;
-    border: 2px solid black;
-    color: #fff;
-    font-size: 1em;
-    cursor: pointer;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
-}
-
-.dropdown-item button:hover {
-    background-color: darkred;
-    color: white;
 }
 
 .nickname-popup {

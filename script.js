@@ -8,7 +8,8 @@ const firebaseConfig = {
     storageBucket: "YOUR_PROJECT_ID.appspot.com",
     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
     appId: "YOUR_APP_ID",
-    measurementId: "YOUR_MEASUREMENT_ID"
+    measurementId: "YOUR_MEASUREMENT_ID",
+    databaseURL: "https://your_project_id-default-rtdb.firebaseio.com"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -172,13 +173,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') {
             document.getElementById('sendButton').click();
         }
-    });
-
-    document.getElementById('settingsButton').addEventListener('click', function() {
-        const nicknameButton = document.getElementById('nicknameButton');
-        const blockButton = document.getElementById('blockButton');
-        nicknameButton.classList.toggle('hidden');
-        blockButton.classList.toggle('hidden');
     });
 
     document.getElementById('nicknameButton').addEventListener('click', function() {

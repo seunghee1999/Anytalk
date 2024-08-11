@@ -11,14 +11,12 @@
         <header>
             <div class="title-bar">
                 <h1 id="mainTitle">아무 말 대잔치</h1>
-                <span id="settingsButton" class="settings-button">설정</span>
+                <div class="right-buttons">
+                    <span id="nicknameButton" class="plain-text">닉네임 변경</span> / 
+                    <span id="blockButton" class="plain-text">차단 관리</span>
+                </div>
             </div>
         </header>
-
-        <div id="settingsContent" class="settings-content hidden">
-            <button id="nicknameButton" class="dropdown-item hidden">닉네임 변경</button>
-            <button id="blockButton" class="dropdown-item hidden">차단 관리</button>
-        </div>
 
         <div id="chatbox"></div>
         <div id="newMessagePopup" class="popup hidden">새로운 메시지가 도착했습니다!</div>
