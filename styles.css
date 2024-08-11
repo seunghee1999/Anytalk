@@ -19,8 +19,8 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding-left: 10px; /* 왼쪽 여백 */
-    padding-right: 10px; /* 오른쪽 여백 */
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 header {
@@ -58,7 +58,7 @@ h1 {
 .plain-text {
     color: #000;
     cursor: pointer;
-    font-size: 0.8em; /* 글씨 크기 조정 */
+    font-size: 0.8em;
 }
 
 #chatbox {
@@ -94,7 +94,7 @@ h1 {
 }
 
 .message.left {
-    background-color: #f1f1f1;
+    background-color: #ffffff;
     align-self: flex-start;
     text-align: left;
 }

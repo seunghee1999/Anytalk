@@ -82,7 +82,9 @@ function loadMessagesFromFirebase() {
         const chatbox = document.getElementById('chatbox');
         chatbox.innerHTML = '';
         for (let id in data) {
-            addMessage(data[id].nickname, data[id].message, data[id].position, true);
+            const isOwnMessage = data[id].nickname === getStoredNickname();
+            const position = isOwnMessage ? 'right' : 'left';
+            addMessage(data[id].nickname, data[id].message, position, true);
         }
         scrollToBottom();
     });
