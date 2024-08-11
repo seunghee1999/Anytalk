@@ -1,3 +1,19 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDzGOMXdVmopdK6OdVRpi78twu2w8HnEtE",
+  authDomain: "anytalk-79a5a.firebaseapp.com",
+  projectId: "anytalk-79a5a",
+  storageBucket: "anytalk-79a5a.appspot.com",
+  messagingSenderId: "266983278684",
+  appId: "1:266983278684:web:02651e780ff35bbea0be99",
+  measurementId: "G-DLBETBJPL7"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 function generateRandomNickname() {
     const adjectives = ["Happy", "Brave", "Clever", "Witty", "Kind"];
     const animals = ["Lion", "Tiger", "Bear", "Eagle", "Shark"];
@@ -43,82 +59,28 @@ function replaceForbiddenWords(message) {
     return filteredMessage;
 }
 
-function saveChatHistory() {
+function addMessageToFirebase(codename, message, position) {
+    const chatRef = ref(db, 'chats');
+    push(chatRef, {
+        codename: codename,
+        message: message,
+        position: position,
+        timestamp: Date.now()
+    });
+}
+
+function loadMessagesFromFirebase() {
     const chatbox = document.getElementById('chatbox');
-    const messages = chatbox.innerHTML;
-    localStorage.setItem('chatHistory', messages);
-}
+    const chatRef = ref(db, 'chats');
 
-function loadChatHistory() {
-    const chatbox = document.getElementById('chatbox');
-    const messages = localStorage.getItem('chatHistory');
-    if (messages) {
-        chatbox.innerHTML = messages;
-    }
-}
-
-function scrollToBottom() {
-    const chatbox = document.getElementById('chatbox');
-    chatbox.scrollTop = chatbox.scrollHeight;
-}
-
-function showNewMessagePopup() {
-    const popup = document.getElementById('newMessagePopup');
-    popup.classList.remove('hidden');
-    setTimeout(() => {
-        popup.classList.add('hidden');
-    }, 3000);
-}
-
-function showBlockPopup() {
-    const blockPopup = document.getElementById('blockPopup');
-    blockPopup.classList.remove('hidden');
-    setTimeout(() => {
-        blockPopup.classList.add('hidden');
-    }, 3000);
-}
-
-function getBlockedUsers() {
-    const blockedUsers = localStorage.getItem('blockedUsers');
-    return blockedUsers ? JSON.parse(blockedUsers) : [];
-}
-
-function saveBlockedUsers(blockedUsers) {
-    localStorage.setItem('blockedUsers', JSON.stringify(blockedUsers));
-}
-
-function addMessage(codename, message, position, isSystem = false) {
-    const blockedUsers = getBlockedUsers();
-    if (blockedUsers.includes(codename)) {
-        return;
-    }
-
-    const chatbox = document.getElementById('chatbox');
-    const atBottom = chatbox.scrollTop + chatbox.clientHeight === chatbox.scrollHeight;
-
-    const newMessage = document.createElement('div');
-    newMessage.innerHTML = `<strong>${codename}:</strong> ${message}`;
-    newMessage.classList.add('message', position);
-
-    chatbox.appendChild(newMessage);
-
-    if (chatbox.children.length > 300) {
-        chatbox.removeChild(chatbox.firstChild);
-    }
-
-    saveChatHistory();
-
-    if (!atBottom && !isSystem) {
-        showNewMessagePopup();
-    } else if (!isSystem) {
-        scrollToBottom();
-    }
-}
-
-function greetNewUser() {
-    const nickname = getStoredNickname();
-    const greetingMessage = `${nickname}님이 입장했습니다.`;
-    addMessage("시스템", greetingMessage, 'left', true);
+    onChildAdded(chatRef, (snapshot) => {
+        const data = snapshot.val();
+        const newMessage = document.createElement('div');
+        newMessage.innerHTML = `<strong>${data.codename}:</strong> ${data.message}`;
+        newMessage.classList.add('message', data.position);
+        chatbox.appendChild(newMessage);
+        chatbox.scrollTop = chatbox.scrollHeight;
+    });
 }
 
 document.getElementById('sendButton').addEventListener('click', function() {
@@ -128,22 +90,15 @@ document.getElementById('sendButton').addEventListener('click', function() {
     if (chatInput.value.trim() !== "") {
         let message = chatInput.value;
         message = replaceForbiddenWords(message);
-
-        addMessage(nickname, message, 'right');
-
+        
+        addMessageToFirebase(nickname, message, 'right');
+        
         chatInput.value = "";
     }
 });
 
-document.getElementById('chatInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        document.getElementById('sendButton').click();
-    }
-});
-
 document.addEventListener('DOMContentLoaded', function() {
-    loadChatHistory();
-    scrollToBottom();
+    loadMessagesFromFirebase();
 
     let blockTimeout;
 
@@ -194,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const blockedList = document.getElementById('blockedList');
     const unblockButton = document.getElementById('unblockButton');
 
-    blockButton.addEventListener('click', function() {
+    document.getElementById('blockButton').addEventListener('click', function() {
         blockManager.classList.remove('hidden');
         updateBlockedList();
     });
@@ -233,8 +188,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function addIncomingMessage(message) {
-    const nickname = getStoredNickname();
-    message = replaceForbiddenWords(message);
-    addMessage(nickname, message, 'left');
+function scrollToBottom() {
+    const chatbox = document.getElementById('chatbox');
+    chatbox.scrollTop = chatbox.scrollHeight;
+}
+
+function showBlockPopup() {
+    const blockPopup = document.getElementById('blockPopup');
+    blockPopup.classList.remove('hidden');
+    setTimeout(() => {
+        blockPopup.classList.add('hidden');
+    }, 3000);
 }
