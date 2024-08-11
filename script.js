@@ -1,4 +1,3 @@
-// 무작위 닉네임 생성 함수
 function generateRandomNickname() {
     const adjectives = ["Happy", "Brave", "Clever", "Witty", "Kind"];
     const animals = ["Lion", "Tiger", "Bear", "Eagle", "Shark"];
@@ -7,7 +6,6 @@ function generateRandomNickname() {
     return `${randomAdjective}${randomAnimal}${Math.floor(Math.random() * 1000)}`;
 }
 
-// 닉네임 저장 및 로드 함수
 function getStoredNickname() {
     let nickname = localStorage.getItem('nickname');
     if (!nickname) {
@@ -22,15 +20,13 @@ function setStoredNickname(nickname) {
     localStorage.setItem('nicknameLastChanged', Date.now());
 }
 
-// 닉네임 변경 가능 여부 확인
 function canChangeNickname() {
     const lastChanged = localStorage.getItem('nicknameLastChanged');
     if (!lastChanged) return true;
     const now = Date.now();
-    return now - lastChanged >= 24 * 60 * 60 * 1000; // 24시간
+    return now - lastChanged >= 24 * 60 * 60 * 1000;
 }
 
-// 금칙어 리스트 (욕설, 스팸, 광고성 단어 등)
 const forbiddenWords = [
     "병신", "시발", "ㅅㅂ", "ㅄ", 
     "미친놈", "미친년도", "멍청이", "바보", "바보야", 
@@ -38,24 +34,21 @@ const forbiddenWords = [
     "구매", "팔아요"
 ];
 
-// 금칙어를 하트 모양으로 대체하는 함수
 function replaceForbiddenWords(message) {
     let filteredMessage = message;
     forbiddenWords.forEach(word => {
-        const regex = new RegExp(word, 'gi');  // 대소문자 구분 없이 모든 금칙어 찾기
+        const regex = new RegExp(word, 'gi');
         filteredMessage = filteredMessage.replace(regex, '❤️');
     });
     return filteredMessage;
 }
 
-// 채팅 기록을 로컬 스토리지에 저장하는 함수
 function saveChatHistory() {
     const chatbox = document.getElementById('chatbox');
     const messages = chatbox.innerHTML;
     localStorage.setItem('chatHistory', messages);
 }
 
-// 채팅 기록을 로컬 스토리지에서 불러오는 함수
 function loadChatHistory() {
     const chatbox = document.getElementById('chatbox');
     const messages = localStorage.getItem('chatHistory');
@@ -64,31 +57,27 @@ function loadChatHistory() {
     }
 }
 
-// 최신 메시지로 스크롤
 function scrollToBottom() {
     const chatbox = document.getElementById('chatbox');
     chatbox.scrollTop = chatbox.scrollHeight;
 }
 
-// 새로운 메시지 팝업 표시
 function showNewMessagePopup() {
     const popup = document.getElementById('newMessagePopup');
     popup.classList.remove('hidden');
     setTimeout(() => {
         popup.classList.add('hidden');
-    }, 3000); // 3초 후에 팝업을 숨김
+    }, 3000);
 }
 
-// 차단 팝업 표시
 function showBlockPopup() {
     const blockPopup = document.getElementById('blockPopup');
     blockPopup.classList.remove('hidden');
     setTimeout(() => {
         blockPopup.classList.add('hidden');
-    }, 3000); // 3초 후에 팝업을 숨김
+    }, 3000);
 }
 
-// 차단된 사용자 목록 로드 및 저장
 function getBlockedUsers() {
     const blockedUsers = localStorage.getItem('blockedUsers');
     return blockedUsers ? JSON.parse(blockedUsers) : [];
@@ -98,11 +87,10 @@ function saveBlockedUsers(blockedUsers) {
     localStorage.setItem('blockedUsers', JSON.stringify(blockedUsers));
 }
 
-// 채팅 메시지를 추가하는 함수
 function addMessage(codename, message, position, isSystem = false) {
     const blockedUsers = getBlockedUsers();
     if (blockedUsers.includes(codename)) {
-        return; // 차단된 사용자의 메시지는 표시하지 않음
+        return;
     }
 
     const chatbox = document.getElementById('chatbox');
@@ -114,36 +102,32 @@ function addMessage(codename, message, position, isSystem = false) {
 
     chatbox.appendChild(newMessage);
 
-    // 메시지가 300개를 넘으면 가장 오래된 메시지를 삭제
     if (chatbox.children.length > 300) {
         chatbox.removeChild(chatbox.firstChild);
     }
 
-    saveChatHistory(); // 새로운 메시지를 추가할 때마다 채팅 기록 저장
+    saveChatHistory();
 
-    // 사용자가 스크롤을 아래에 두고 있지 않으면 팝업을 표시 (시스템 메시지는 제외)
     if (!atBottom && !isSystem) {
         showNewMessagePopup();
     } else if (!isSystem) {
-        scrollToBottom(); // 스크롤을 최신 메시지로 이동
+        scrollToBottom();
     }
 }
 
-// 새로운 사용자가 들어왔을 때 인사하는 함수
 function greetNewUser() {
     const nickname = getStoredNickname();
-    const greetingMessage = `${nickname}님이 입장했습니다.`; // 시스템 메시지에서 "안녕하세요!" 제거
-    addMessage("시스템", greetingMessage, 'left', true); // 시스템 메시지로 추가
+    const greetingMessage = `${nickname}님이 입장했습니다.`;
+    addMessage("시스템", greetingMessage, 'left', true);
 }
 
-// 사용자가 채팅을 전송할 때 처리하는 함수
 document.getElementById('sendButton').addEventListener('click', function() {
     const nickname = getStoredNickname();
     const chatInput = document.getElementById('chatInput');
     
     if (chatInput.value.trim() !== "") {
         let message = chatInput.value;
-        message = replaceForbiddenWords(message);  // 금칙어를 하트 모양으로 대체
+        message = replaceForbiddenWords(message);
 
         addMessage(nickname, message, 'right');
 
@@ -157,10 +141,9 @@ document.getElementById('chatInput').addEventListener('keypress', function(e) {
     }
 });
 
-// 페이지 로드 시 채팅 기록을 불러온 후 최신 메시지로 스크롤
 document.addEventListener('DOMContentLoaded', function() {
     loadChatHistory();
-    scrollToBottom(); // 페이지 로드 시 최신 메시지로 스크롤
+    scrollToBottom();
 
     let blockTimeout;
 
@@ -181,7 +164,6 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(blockTimeout);
     });
 
-    // 설정 버튼 클릭 이벤트
     document.getElementById('settingsButton').addEventListener('click', function() {
         const nicknameButton = document.getElementById('nicknameButton');
         const blockButton = document.getElementById('blockButton');
@@ -190,7 +172,6 @@ document.addEventListener('DOMContentLoaded', function() {
         blockButton.classList.toggle('hidden');
     });
 
-    // 닉네임 변경 버튼 클릭 이벤트
     document.getElementById('nicknameButton').addEventListener('click', function() {
         if (canChangeNickname()) {
             document.getElementById('nicknamePopup').classList.remove('hidden');
@@ -199,7 +180,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 닉네임 저장 버튼 클릭 이벤트
     document.getElementById('saveNicknameButton').addEventListener('click', function() {
         const newNickname = document.getElementById('newNickname').value.trim();
         if (newNickname) {
@@ -209,56 +189,52 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 차단 관리 버튼 클릭 이벤트
-    document.getElementById('blockButton').addEventListener('click', function() {
-        const blockManager = document.getElementById('blockManager');
-        const blockedList = document.getElementById('blockedList');
-        blockedList.innerHTML = ''; // 기존 목록 초기화
+    const blockManager = document.getElementById('blockManager');
+    const closeBlockManagerButton = document.getElementById('closeBlockManager');
+    const blockedList = document.getElementById('blockedList');
+    const unblockButton = document.getElementById('unblockButton');
 
-        const blockedUsers = getBlockedUsers();
-        blockedUsers.forEach((user, index) => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${index + 1}. ${user}`;
-            listItem.addEventListener('click', function() {
-                document.getElementById('unblockButton').classList.remove('hidden');
-                document.getElementById('unblockButton').setAttribute('data-username', user);
-            });
-            blockedList.appendChild(listItem);
-        });
-
+    blockButton.addEventListener('click', function() {
         blockManager.classList.remove('hidden');
+        updateBlockedList();
     });
 
-    // 차단 해제 버튼 클릭 이벤트
-    document.getElementById('unblockButton').addEventListener('click', function() {
-        const username = this.getAttribute('data-username');
-        let blockedUsers = getBlockedUsers();
+    closeBlockManagerButton.addEventListener('click', function() {
+        blockManager.classList.add('hidden');
+    });
+
+    function updateBlockedList() {
+        blockedList.innerHTML = '';
+        const blockedUsers = JSON.parse(localStorage.getItem('blockedUsers')) || [];
+        blockedUsers.forEach(function(user, index) {
+            const li = document.createElement('li');
+            li.textContent = `${index + 1}. ${user}`;
+            li.addEventListener('click', function() {
+                unblockButton.classList.remove('hidden');
+                unblockButton.dataset.username = user;
+            });
+            blockedList.appendChild(li);
+        });
+    }
+
+    unblockButton.addEventListener('click', function() {
+        const username = this.dataset.username;
+        let blockedUsers = JSON.parse(localStorage.getItem('blockedUsers')) || [];
         blockedUsers = blockedUsers.filter(user => user !== username);
-        saveBlockedUsers(blockedUsers);
-        alert(`${username}님이 차단 해제되었습니다.`);
+        localStorage.setItem('blockedUsers', JSON.stringify(blockedUsers));
+        updateBlockedList();
+        unblockButton.classList.add('hidden');
+        alert(`${username}님의 차단이 해제되었습니다.`);
+    });
+
+    document.getElementById('newMessagePopup').addEventListener('click', function() {
+        scrollToBottom();
         this.classList.add('hidden');
-        document.getElementById('blockManager').classList.add('hidden');
-    });
-
-    // 차단 관리 창 닫기 버튼
-    document.getElementById('closeBlockManager').addEventListener('click', function() {
-        document.getElementById('blockManager').classList.add('hidden');
     });
 });
 
-// 새로운 메시지 팝업을 클릭했을 때 최신 메시지로 스크롤
-document.getElementById('newMessagePopup').addEventListener('click', function() {
-    scrollToBottom();
-    this.classList.add('hidden'); // 팝업을 숨김
-});
-
-// Example: Adding a message from another person with a random IP
 function addIncomingMessage(message) {
     const nickname = getStoredNickname();
-    message = replaceForbiddenWords(message);  // 금칙어를 하트 모양으로 대체
-    
+    message = replaceForbiddenWords(message);
     addMessage(nickname, message, 'left');
 }
-
-// Example of incoming message
-// addIncomingMessage("안녕하세요!"); // 이 메시지를 비활성화 또는 삭제하여 나타나지 않도록 함
