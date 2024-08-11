@@ -81,9 +81,10 @@ function loadMessagesFromFirebase() {
         const data = snapshot.val();
         const chatbox = document.getElementById('chatbox');
         chatbox.innerHTML = '';
+        const currentNickname = getStoredNickname();
+        
         for (let id in data) {
-            const isOwnMessage = data[id].nickname === getStoredNickname();
-            const position = isOwnMessage ? 'right' : 'left';
+            const position = data[id].nickname === currentNickname ? 'right' : 'left';
             addMessage(data[id].nickname, data[id].message, position, true);
         }
         scrollToBottom();
@@ -172,7 +173,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (chatInput.value.trim() !== "") {
             let message = chatInput.value;
             message = replaceForbiddenWords(message);
-            addMessage(nickname, message, 'right');
+            const position = 'right';
+            addMessage(nickname, message, position);
             chatInput.value = "";
         }
     });
