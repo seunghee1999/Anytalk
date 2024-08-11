@@ -82,7 +82,10 @@ function loadMessagesFromFirebase() {
         const chatbox = document.getElementById('chatbox');
         chatbox.innerHTML = '';
         for (let id in data) {
-            addMessage(data[id].nickname, data[id].message, data[id].position, true);
+            const messageData = data[id];
+            const isCurrentUser = messageData.nickname === getStoredNickname();
+            const position = isCurrentUser ? 'right' : 'left';
+            addMessage(messageData.nickname, messageData.message, position, true);
         }
         scrollToBottom();
     });
@@ -98,11 +101,6 @@ function addMessage(nickname, message, position, fromFirebase = false) {
     const newMessage = document.createElement('div');
     newMessage.innerHTML = `<strong>${nickname}:</strong> ${message}`;
     newMessage.classList.add('message', position);
-
-    // 시스템 메시지는 상대방 메시지 스타일 적용
-    if (nickname === "시스템") {
-        newMessage.classList.add('left');
-    }
 
     chatbox.appendChild(newMessage);
 
@@ -241,7 +239,6 @@ document.addEventListener('DOMContentLoaded', function() {
         this.classList.add('hidden');
     });
 
-    // 아무 말 대잔치 제목 클릭 시 새로고침
     document.getElementById('mainTitle').addEventListener('click', function() {
         location.reload();
     });
