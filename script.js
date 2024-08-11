@@ -62,12 +62,17 @@ function replaceForbiddenWords(message) {
     return filteredMessage;
 }
 
+// Firebase에 메시지를 저장하는 함수 (업데이트된 부분)
 function addMessageToFirebase(nickname, message, position) {
     const messageRef = ref(db, 'messages/' + Date.now());
     set(messageRef, {
         nickname: nickname,
         message: message,
         position: position
+    }).then(() => {
+        console.log("메시지가 Firebase에 저장되었습니다.");
+    }).catch((error) => {
+        console.error("Firebase에 메시지 저장 실패:", error);
     });
 }
 
