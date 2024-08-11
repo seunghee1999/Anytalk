@@ -62,7 +62,6 @@ function replaceForbiddenWords(message) {
     return filteredMessage;
 }
 
-// Firebase에 메시지를 저장하는 함수 (업데이트된 부분)
 function addMessageToFirebase(nickname, message, position) {
     const messageRef = ref(db, 'messages/' + Date.now());
     set(messageRef, {
@@ -182,13 +181,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    document.getElementById('settingsButton').addEventListener('click', function() {
-        const nicknameButton = document.getElementById('nicknameButton');
-        const blockButton = document.getElementById('blockButton');
-        nicknameButton.classList.toggle('hidden');
-        blockButton.classList.toggle('hidden');
-    });
-
     document.getElementById('nicknameButton').addEventListener('click', function() {
         if (canChangeNickname()) {
             document.getElementById('nicknamePopup').classList.remove('hidden');
@@ -244,7 +236,6 @@ document.addEventListener('DOMContentLoaded', function() {
         this.classList.add('hidden');
     });
 
-    // 아무 말 대잔치 제목 클릭 시 새로고침
     document.getElementById('mainTitle').addEventListener('click', function() {
         location.reload();
     });
