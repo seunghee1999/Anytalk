@@ -9,8 +9,19 @@
 <body>
     <div class="container">
         <header>
-            <h1>아무 말 대잔치</h1>
+            <div class="title-bar">
+                <h1>아무 말 대잔치</h1>
+                <span id="settingsButton" class="settings-button">설정</span>
+            </div>
         </header>
+
+        <div id="settingsContent" class="settings-content hidden">
+            <div class="dropdown-item">
+                <button id="blockButton">차단 관리</button>
+                <button id="nicknameButton">닉네임 변경</button>
+            </div>
+        </div>
+
         <div id="chatbox"></div>
         <div id="newMessagePopup" class="popup hidden">새로운 메시지가 도착했습니다!</div>
         <div class="input-container">
@@ -18,15 +29,6 @@
             <button id="sendButton">전송</button>
         </div>
         <div id="blockPopup" class="block-popup hidden">사용자를 차단하시겠습니까?</div>
-        
-        <!-- 설정 버튼과 드롭다운 메뉴 -->
-        <div id="settingsMenu" class="settings-menu">
-            <button id="settingsButton">설정</button>
-            <div id="settingsContent" class="settings-content hidden">
-                <button id="nicknameButton" class="dropdown-item hidden">닉네임 변경</button>
-                <button id="blockButton" class="dropdown-item hidden">차단 관리</button>
-            </div>
-        </div>
 
         <!-- 닉네임 변경 팝업 -->
         <div id="nicknamePopup" class="nickname-popup hidden">
