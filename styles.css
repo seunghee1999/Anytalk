@@ -8,6 +8,7 @@ body {
     align-items: center;
     height: 100vh;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 .container {
@@ -38,7 +39,7 @@ h1 {
     flex: 1;
     width: 100%;
     max-height: calc(100vh - 150px);
-    overflow-y: auto;
+    overflow-y: scroll;
     margin: 20px 0;
     padding: 10px;
     background-color: #fff;
@@ -46,7 +47,7 @@ h1 {
     border-radius: 10px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: flex-start;
 }
 
 .message {
@@ -56,6 +57,8 @@ h1 {
     border-radius: 10px;
     font-size: 1em;
     word-wrap: break-word;
+    position: relative;
+    cursor: pointer;
 }
 
 .message.right {
@@ -98,4 +101,183 @@ h1 {
 
 #sendButton:hover {
     background-color: darkgray;
+}
+
+.popup {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 0.9em;
+    z-index: 100;
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
+
+/* 차단 팝업 */
+.block-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    font-size: 1.2em;
+    z-index: 200;
+}
+
+/* 설정 메뉴 */
+.settings-menu {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+}
+
+.settings-menu button {
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+    margin-bottom: 5px;
+}
+
+.settings-menu button:hover {
+    background-color: darkred;
+}
+
+.settings-content {
+    background-color: #444;
+    padding: 10px;
+    border-radius: 5px;
+    position: absolute;
+    bottom: 60px;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-content button {
+    margin-bottom: 5px;
+}
+
+.settings-content button:last-child {
+    margin-bottom: 0;
+}
+
+/* 닉네임 변경 팝업 */
+.nickname-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    color: black;
+    padding: 20px;
+    border-radius: 10px;
+    font-size: 1em;
+    z-index: 200;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.nickname-popup input {
+    font-size: 1em;
+    padding: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.nickname-popup button {
+    font-size: 1em;
+    padding: 5px 10px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.nickname-popup button:hover {
+    background-color: darkred;
+}
+
+/* 차단 관리 창 */
+.block-manager {
+    position: fixed;
+    top: 10%;
+    right: 10px;
+    width: 200px;
+    background-color: #f9f9f9;
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 10px;
+    z-index: 200;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.block-header h2 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.block-header button {
+    background-color: #333;
+    color: white;
+    border: none;
+    font-size: 1em;
+    cursor: pointer;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+.block-header button:hover {
+    background-color: darkred;
+}
+
+.blocked-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.blocked-list li {
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.blocked-list li:hover {
+    background-color: #eee;
+}
+
+#unblockButton {
+    width: 100%;
+    padding: 5px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#unblockButton:hover {
+    background-color: darkred;
 }
