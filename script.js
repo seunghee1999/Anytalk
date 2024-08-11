@@ -1,18 +1,20 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-analytics.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID",
-    measurementId: "YOUR_MEASUREMENT_ID",
-    databaseURL: "https://your_project_id-default-rtdb.firebaseio.com"
+  apiKey: "AIzaSyDzGOMXdVmopdK6OdVRpi78twu2w8HnEtE",
+  authDomain: "anytalk-79a5a.firebaseapp.com",
+  databaseURL: "https://anytalk-79a5a-default-rtdb.firebaseio.com",
+  projectId: "anytalk-79a5a",
+  storageBucket: "anytalk-79a5a.appspot.com",
+  messagingSenderId: "266983278684",
+  appId: "1:266983278684:web:02651e780ff35bbea0be99",
+  measurementId: "G-DLBETBJPL7"
 };
 
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 const db = getDatabase(app);
 
 function generateRandomNickname() {
@@ -173,6 +175,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') {
             document.getElementById('sendButton').click();
         }
+    });
+
+    document.getElementById('settingsButton').addEventListener('click', function() {
+        const nicknameButton = document.getElementById('nicknameButton');
+        const blockButton = document.getElementById('blockButton');
+        nicknameButton.classList.toggle('hidden');
+        blockButton.classList.toggle('hidden');
     });
 
     document.getElementById('nicknameButton').addEventListener('click', function() {
