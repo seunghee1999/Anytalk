@@ -19,8 +19,8 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 10px; /* 왼쪽 여백 */
+    padding-right: 10px; /* 오른쪽 여백 */
 }
 
 header {
@@ -58,7 +58,7 @@ h1 {
 .plain-text {
     color: #000;
     cursor: pointer;
-    font-size: 0.8em;
+    font-size: 0.8em; /* 글씨 크기 조정 */
 }
 
 #chatbox {
@@ -91,12 +91,14 @@ h1 {
     background-color: #dcf8c6;
     align-self: flex-end;
     text-align: right;
+    color: black; /* 텍스트 색상 */
 }
 
 .message.left {
-    background-color: #ffffff;
+    background-color: #f1f1f1;
     align-self: flex-start;
     text-align: left;
+    color: black; /* 텍스트 색상 */
 }
 
 .input-container {
