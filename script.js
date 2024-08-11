@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+import { getDatabase, ref, set, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
+// Firebase 설정 코드 추가
 const firebaseConfig = {
   apiKey: "AIzaSyDzGOMXdVmopdK6OdVRpi78twu2w8HnEtE",
   authDomain: "anytalk-79a5a.firebaseapp.com",
@@ -11,8 +12,20 @@ const firebaseConfig = {
   measurementId: "G-DLBETBJPL7"
 };
 
+// Firebase 초기화
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+
+// Database가 제대로 연결되었는지 확인하는 함수
+function testDatabaseConnection() {
+  const testRef = ref(db, 'testConnection');
+  set(testRef, {test: "success"})
+    .then(() => console.log('Firebase와 연결이 성공했습니다.'))
+    .catch((error) => console.error('Firebase 연결에 실패했습니다:', error));
+}
+
+// Firebase와의 연결을 테스트합니다.
+testDatabaseConnection();
 
 function generateRandomNickname() {
     const adjectives = ["Happy", "Brave", "Clever", "Witty", "Kind"];
@@ -31,26 +44,8 @@ function getStoredNickname() {
     return nickname;
 }
 
-function setStoredNickname(nickname) {
-    localStorage.setItem('nickname', nickname);
-    localStorage.setItem('nicknameLastChanged', Date.now());
-}
-
-function canChangeNickname() {
-    const lastChanged = localStorage.getItem('nicknameLastChanged');
-    if (!lastChanged) return true;
-    const now = Date.now();
-    return now - lastChanged >= 24 * 60 * 60 * 1000;
-}
-
-const forbiddenWords = [
-    "병신", "시발", "ㅅㅂ", "ㅄ", 
-    "미친놈", "미친년도", "멍청이", "바보", "바보야", 
-    "X발", "또라이", "죽어", "광고", "홍보", 
-    "구매", "팔아요"
-];
-
 function replaceForbiddenWords(message) {
+    const forbiddenWords = ["병신", "시발", "ㅅㅂ", "ㅄ", "미친놈", "미친년도", "멍청이", "바보", "바보야", "X발", "또라이", "죽어", "광고", "홍보", "구매", "팔아요"];
     let filteredMessage = message;
     forbiddenWords.forEach(word => {
         const regex = new RegExp(word, 'gi');
@@ -94,6 +89,8 @@ document.getElementById('sendButton').addEventListener('click', function() {
         addMessageToFirebase(nickname, message, 'right');
         
         chatInput.value = "";
+    } else {
+        console.error('채팅 입력란이 비어 있습니다.');
     }
 });
 
