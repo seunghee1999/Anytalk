@@ -99,8 +99,8 @@ function addMessage(nickname, message, position, fromFirebase = false) {
     newMessage.innerHTML = `<strong>${nickname}:</strong> ${message}`;
     newMessage.classList.add('message', position);
 
-    // 상대방 메시지와 시스템 메시지에 스타일 적용
-    if (position === 'left' || nickname === "시스템") {
+    // 시스템 메시지는 상대방 메시지 스타일 적용
+    if (nickname === "시스템") {
         newMessage.classList.add('left');
     }
 
