@@ -3,14 +3,14 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.10/firebase
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDzGOMXdVmopdK6OdVRpi78twu2w8HnEtE",
-  authDomain: "anytalk-79a5a.firebaseapp.com",
-  databaseURL: "https://anytalk-79a5a-default-rtdb.firebaseio.com",
-  projectId: "anytalk-79a5a",
-  storageBucket: "anytalk-79a5a.appspot.com",
-  messagingSenderId: "266983278684",
-  appId: "1:266983278684:web:02651e780ff35bbea0be99",
-  measurementId: "G-DLBETBJPL7"
+    apiKey: "AIzaSyDzGOMXdVmopdK6OdVRpi78twu2w8HnEtE",
+    authDomain: "anytalk-79a5a.firebaseapp.com",
+    databaseURL: "https://anytalk-79a5a-default-rtdb.firebaseio.com",
+    projectId: "anytalk-79a5a",
+    storageBucket: "anytalk-79a5a.appspot.com",
+    messagingSenderId: "266983278684",
+    appId: "1:266983278684:web:02651e780ff35bbea0be99",
+    measurementId: "G-DLBETBJPL7"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -184,7 +184,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    document.getElementById('menuButton').addEventListener('click', function() {
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        dropdownMenu.classList.toggle('hidden');
+    });
+
     document.getElementById('nicknameButton').addEventListener('click', function() {
+        document.getElementById('dropdownMenu').classList.add('hidden');
         if (canChangeNickname()) {
             document.getElementById('nicknamePopup').classList.remove('hidden');
         } else {
@@ -202,6 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('blockButton').addEventListener('click', function() {
+        document.getElementById('dropdownMenu').classList.add('hidden');
         const blockManager = document.getElementById('blockManager');
         const blockedList = document.getElementById('blockedList');
         blockedList.innerHTML = '';
