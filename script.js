@@ -3,19 +3,35 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.10/firebase
 import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDzGOMXdVmopdK6OdVRpi78twu2w8HnEtE",
-    authDomain: "anytalk-79a5a.firebaseapp.com",
-    databaseURL: "https://anytalk-79a5a-default-rtdb.firebaseio.com",
-    projectId: "anytalk-79a5a",
-    storageBucket: "anytalk-79a5a.appspot.com",
-    messagingSenderId: "266983278684",
-    appId: "1:266983278684:web:02651e780ff35bbea0be99",
-    measurementId: "G-DLBETBJPL7"
+  apiKey: "AIzaSyDzGOMXdVmopdK6OdVRpi78twu2w8HnEtE",
+  authDomain: "anytalk-79a5a.firebaseapp.com",
+  databaseURL: "https://anytalk-79a5a-default-rtdb.firebaseio.com",
+  projectId: "anytalk-79a5a",
+  storageBucket: "anytalk-79a5a.appspot.com",
+  messagingSenderId: "266983278684",
+  appId: "1:266983278684:web:02651e780ff35bbea0be99",
+  measurementId: "G-DLBETBJPL7"
 };
 
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getDatabase(app);
+
+let notificationsEnabled = true; // 실시간 알림 상태
+let userId = getStoredNickname();
+
+// 접속 상태 관리
+const userStatusRef = ref(db, 'users/' + userId);
+set(userStatusRef, { online: true });
+onDisconnect(userStatusRef).set({ online: false });
+
+// 실시간 접속자 수 표시
+const userCountRef = ref(db, 'users');
+onValue(userCountRef, (snapshot) => {
+  const users = snapshot.val();
+  const onlineUsers = Object.values(users).filter(user => user.online).length;
+  document.getElementById('userCount').textContent = `접속자: ${onlineUsers}명`;
+});
 
 function generateRandomNickname() {
     const adjectives = ["Happy", "Brave", "Clever", "Witty", "Kind"];
@@ -99,13 +115,20 @@ function addMessage(nickname, message, position, fromFirebase = false) {
     newMessage.innerHTML = `<strong>${nickname}:</strong> ${message}`;
     newMessage.classList.add('message', position);
 
+    // 메시지 위치 결정
+    if (nickname === getStoredNickname()) {
+        newMessage.classList.add('right');
+    } else {
+        newMessage.classList.add('left');
+    }
+
     chatbox.appendChild(newMessage);
 
     if (!fromFirebase) {
         addMessageToFirebase(nickname, message, position);
     }
 
-    if (!atBottom) {
+    if (notificationsEnabled && !atBottom) {
         showNewMessagePopup();
     } else {
         scrollToBottom();
@@ -140,32 +163,9 @@ function greetNewUser() {
     addMessage("시스템", greetingMessage, 'left', true);
 }
 
-// 사용자 접속 상태 관리
-function manageUserConnection() {
-    const userId = getStoredNickname();
-    const userStatusRef = ref(db, 'users/' + userId);
-
-    // 접속 상태를 "온라인"으로 설정
-    set(userStatusRef, {
-        online: true
-    });
-
-    // onDisconnect를 사용하여 사용자가 떠날 때 "오프라인"으로 설정
-    onDisconnect(userStatusRef).set({
-        online: false
-    });
-
-    window.addEventListener('beforeunload', function (event) {
-        set(userStatusRef, {
-            online: false
-        });
-    });
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     loadMessagesFromFirebase();
     greetNewUser();
-    manageUserConnection();
 
     let blockTimeout;
 
@@ -204,10 +204,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 설정 버튼 클릭 시 메뉴 토글
     document.getElementById('settingsButton').addEventListener('click', function() {
-        const settingsMenu = document.getElementById('settingsMenu');
-        settingsMenu.classList.toggle('hidden');
+        document.getElementById('settingsMenu').classList.toggle('hidden');
     });
 
     document.getElementById('nicknameButton').addEventListener('click', function() {
@@ -260,12 +258,26 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('blockManager').classList.add('hidden');
     });
 
+    document.getElementById('closeNicknamePopup').addEventListener('click', function() {
+        document.getElementById('nicknamePopup').classList.add('hidden');
+    });
+
     document.getElementById('newMessagePopup').addEventListener('click', function() {
         scrollToBottom();
         this.classList.add('hidden');
     });
 
+    document.getElementById('notificationToggle').addEventListener('click', function() {
+        notificationsEnabled = !notificationsEnabled;
+        this.textContent = notificationsEnabled ? '알림 끄기' : '알림 켜기';
+    });
+
     document.getElementById('mainTitle').addEventListener('click', function() {
         location.reload();
+    });
+
+    window.addEventListener('beforeunload', function (event) {
+        set(userStatusRef, { online: false });
+        event.returnValue = '';
     });
 });

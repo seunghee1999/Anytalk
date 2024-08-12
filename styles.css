@@ -58,7 +58,7 @@ h1 {
 .plain-text {
     color: #000;
     cursor: pointer;
-    font-size: 0.8em; /* 글씨 크기 조정 */
+    font-size: 1.2em; /* 글씨 크기 조정 */
 }
 
 #settingsMenu {
@@ -70,6 +70,8 @@ h1 {
     top: 30px;
     right: 0;
     z-index: 10;
+    display: flex;  /* 가로 배치 설정 */
+    gap: 10px;      /* 항목 간격 설정 */
 }
 
 #settingsMenu.hidden {
@@ -81,7 +83,7 @@ h1 {
     width: 100%;
     max-height: calc(100vh - 200px);
     overflow-y: scroll;
-    margin: 20px 0;
+    margin: 20px 10px; /* 왼쪽과 오른쪽 여백을 동일하게 설정 */
     padding: 10px;
     background-color: #fff;
     border: 2px solid black;
@@ -210,6 +212,21 @@ h1 {
 .nickname-popup button:hover {
     background-color: darkred;
     color: white;
+}
+
+.close-popup {
+    font-size: 1em;
+    padding: 5px 10px;
+    background-color: darkgray;
+    color: #fff;
+    border: 2px solid black;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.close-popup:hover {
+    background-color: gray;
 }
 
 .block-manager {

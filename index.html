@@ -12,13 +12,15 @@
             <div class="title-bar">
                 <h1 id="mainTitle">아무 말 대잔치</h1>
                 <div class="right-buttons">
-                    <span id="settingsButton" class="plain-text">⋮</span>
+                    <span id="settingsButton" class="plain-text">•••</span>
                     <div id="settingsMenu" class="hidden">
-                        <span id="nicknameButton" class="plain-text">닉네임 변경</span> / 
-                        <span id="blockButton" class="plain-text">차단 관리</span>
+                        <span id="nicknameButton">닉네임 변경</span>
+                        <span id="blockButton">차단 관리</span>
+                        <span id="notificationToggle">알림 끄기</span>
                     </div>
                 </div>
             </div>
+            <div id="userCount">접속자: 0명</div>
         </header>
 
         <div id="chatbox"></div>
@@ -33,6 +35,7 @@
         <div id="nicknamePopup" class="nickname-popup hidden">
             <input type="text" id="newNickname" placeholder="새 닉네임 입력">
             <button id="saveNicknameButton">저장</button>
+            <button id="closeNicknamePopup" class="close-popup">닫기</button> <!-- 닫기 버튼 추가 -->
         </div>
 
         <!-- 차단 관리 창 -->
