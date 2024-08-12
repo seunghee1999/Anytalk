@@ -71,11 +71,12 @@ h1 {
     top: 30px;
     right: 0;
     z-index: 10;
-    display: block;  /* 블록 디스플레이로 변경 */
+    display: flex;  /* 가로 배치 */
+    flex-direction: column; /* 항목을 세로로 정렬 */
 }
 
 #settingsMenu span {
-    display: block;  /* 각 항목을 가로로 하나씩 배치 */
+    display: block;  /* 각 항목을 블록으로 배치 */
     padding: 5px 0;  /* 항목 간 간격 추가 */
     text-align: left; /* 텍스트를 왼쪽으로 정렬 */
 }
