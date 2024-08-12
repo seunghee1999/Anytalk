@@ -3,14 +3,14 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.10/firebase
 import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDzGOMXdVmopdK6OdVRpi78twu2w8HnEtE",
-  authDomain: "anytalk-79a5a.firebaseapp.com",
-  databaseURL: "https://anytalk-79a5a-default-rtdb.firebaseio.com",
-  projectId: "anytalk-79a5a",
-  storageBucket: "anytalk-79a5a.appspot.com",
-  messagingSenderId: "266983278684",
-  appId: "1:266983278684:web:02651e780ff35bbea0be99",
-  measurementId: "G-DLBETBJPL7"
+    apiKey: "AIzaSyDzGOMXdVmopdK6OdVRpi78twu2w8HnEtE",
+    authDomain: "anytalk-79a5a.firebaseapp.com",
+    databaseURL: "https://anytalk-79a5a-default-rtdb.firebaseio.com",
+    projectId: "anytalk-79a5a",
+    storageBucket: "anytalk-79a5a.appspot.com",
+    messagingSenderId: "266983278684",
+    appId: "1:266983278684:web:02651e780ff35bbea0be99",
+    measurementId: "G-DLBETBJPL7"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -140,9 +140,32 @@ function greetNewUser() {
     addMessage("시스템", greetingMessage, 'left', true);
 }
 
+// 사용자 접속 상태 관리
+function manageUserConnection() {
+    const userId = getStoredNickname();
+    const userStatusRef = ref(db, 'users/' + userId);
+
+    // 접속 상태를 "온라인"으로 설정
+    set(userStatusRef, {
+        online: true
+    });
+
+    // onDisconnect를 사용하여 사용자가 떠날 때 "오프라인"으로 설정
+    onDisconnect(userStatusRef).set({
+        online: false
+    });
+
+    window.addEventListener('beforeunload', function (event) {
+        set(userStatusRef, {
+            online: false
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     loadMessagesFromFirebase();
     greetNewUser();
+    manageUserConnection();
 
     let blockTimeout;
 
@@ -179,6 +202,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') {
             document.getElementById('sendButton').click();
         }
+    });
+
+    // 설정 버튼 클릭 시 메뉴 토글
+    document.getElementById('settingsButton').addEventListener('click', function() {
+        const settingsMenu = document.getElementById('settingsMenu');
+        settingsMenu.classList.toggle('hidden');
     });
 
     document.getElementById('nicknameButton').addEventListener('click', function() {
@@ -238,26 +267,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('mainTitle').addEventListener('click', function() {
         location.reload();
-    });
-
-    // 사용자 접속 상태를 Firebase에 저장
-    const userId = getStoredNickname();
-    const userStatusRef = ref(db, 'users/' + userId);
-
-    // 접속 상태를 "온라인"으로 설정
-    set(userStatusRef, {
-        online: true
-    });
-
-    // onDisconnect를 사용하여 사용자가 떠날 때 "오프라인"으로 설정
-    onDisconnect(userStatusRef).set({
-        online: false
-    });
-
-    // 페이지를 닫거나 새로고침할 때 상태를 "오프라인"으로 설정
-    window.addEventListener('beforeunload', function () {
-        set(userStatusRef, {
-            online: false
-        });
     });
 });
