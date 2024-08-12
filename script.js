@@ -1,16 +1,16 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-analytics.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDzGOMXdVmopdK6OdVRpi78twu2w8HnEtE",
-    authDomain: "anytalk-79a5a.firebaseapp.com",
-    databaseURL: "https://anytalk-79a5a-default-rtdb.firebaseio.com",
-    projectId: "anytalk-79a5a",
-    storageBucket: "anytalk-79a5a.appspot.com",
-    messagingSenderId: "266983278684",
-    appId: "1:266983278684:web:02651e780ff35bbea0be99",
-    measurementId: "G-DLBETBJPL7"
+  apiKey: "AIzaSyDzGOMXdVmopdK6OdVRpi78twu2w8HnEtE",
+  authDomain: "anytalk-79a5a.firebaseapp.com",
+  databaseURL: "https://anytalk-79a5a-default-rtdb.firebaseio.com",
+  projectId: "anytalk-79a5a",
+  storageBucket: "anytalk-79a5a.appspot.com",
+  messagingSenderId: "266983278684",
+  appId: "1:266983278684:web:02651e780ff35bbea0be99",
+  measurementId: "G-DLBETBJPL7"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -82,10 +82,7 @@ function loadMessagesFromFirebase() {
         const chatbox = document.getElementById('chatbox');
         chatbox.innerHTML = '';
         for (let id in data) {
-            const messageData = data[id];
-            const isCurrentUser = messageData.nickname === getStoredNickname();
-            const position = isCurrentUser ? 'right' : 'left';
-            addMessage(messageData.nickname, messageData.message, position, true);
+            addMessage(data[id].nickname, data[id].message, data[id].position, true);
         }
         scrollToBottom();
     });
@@ -184,13 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    document.getElementById('menuButton').addEventListener('click', function() {
-        const dropdownMenu = document.getElementById('dropdownMenu');
-        dropdownMenu.classList.toggle('hidden');
-    });
-
     document.getElementById('nicknameButton').addEventListener('click', function() {
-        document.getElementById('dropdownMenu').classList.add('hidden');
         if (canChangeNickname()) {
             document.getElementById('nicknamePopup').classList.remove('hidden');
         } else {
@@ -208,7 +199,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('blockButton').addEventListener('click', function() {
-        document.getElementById('dropdownMenu').classList.add('hidden');
         const blockManager = document.getElementById('blockManager');
         const blockedList = document.getElementById('blockedList');
         blockedList.innerHTML = '';
@@ -248,5 +238,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('mainTitle').addEventListener('click', function() {
         location.reload();
+    });
+
+    // 사용자 접속 상태를 Firebase에 저장
+    const userId = getStoredNickname();
+    const userStatusRef = ref(db, 'users/' + userId);
+
+    // 접속 상태를 "온라인"으로 설정
+    set(userStatusRef, {
+        online: true
+    });
+
+    // onDisconnect를 사용하여 사용자가 떠날 때 "오프라인"으로 설정
+    onDisconnect(userStatusRef).set({
+        online: false
+    });
+
+    // 페이지를 닫거나 새로고침할 때 상태를 "오프라인"으로 설정
+    window.addEventListener('beforeunload', function () {
+        set(userStatusRef, {
+            online: false
+        });
     });
 });
