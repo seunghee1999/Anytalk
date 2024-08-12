@@ -19,6 +19,7 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
+    margin: 0 auto; /* 중앙 정렬을 위한 추가 */
     padding-left: 10px; /* 왼쪽 여백 */
     padding-right: 10px; /* 오른쪽 여백 */
 }
@@ -70,8 +71,18 @@ h1 {
     top: 30px;
     right: 0;
     z-index: 10;
-    display: flex;  /* 가로 배치 설정 */
-    gap: 10px;      /* 항목 간격 설정 */
+    display: block;  /* 블록 디스플레이로 변경 */
+}
+
+#settingsMenu span {
+    display: block;  /* 각 항목을 가로로 하나씩 배치 */
+    padding: 5px 0;  /* 항목 간 간격 추가 */
+    text-align: left; /* 텍스트를 왼쪽으로 정렬 */
+}
+
+#settingsMenu span:hover {
+    background-color: #f1f1f1;  /* 항목에 마우스를 올렸을 때 배경색 변경 */
+    cursor: pointer;
 }
 
 #settingsMenu.hidden {
@@ -83,7 +94,7 @@ h1 {
     width: 100%;
     max-height: calc(100vh - 200px);
     overflow-y: scroll;
-    margin: 20px 10px; /* 왼쪽과 오른쪽 여백을 동일하게 설정 */
+    margin: 20px auto; /* 좌우 여백을 자동으로 설정하여 중앙 정렬 */
     padding: 10px;
     background-color: #fff;
     border: 2px solid black;
