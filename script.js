@@ -93,6 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // 닉네임 저장 버튼 클릭 시 중복 확인
     document.getElementById('saveNicknameButton').addEventListener('click', function () {
         const newNickname = document.getElementById('newNickname').value.trim();
         if (newNickname) {
@@ -170,26 +171,29 @@ document.addEventListener('DOMContentLoaded', function () {
         location.reload();
     });
 
-    // 피드백 창 기능
+    // 피드백 버튼 클릭 시 피드백 창 열기
     document.getElementById('feedbackButton').addEventListener('click', function () {
-        document.getElementById('feedbackPopup').classList.remove('hidden'); // 피드백 창 열기
+        document.getElementById('feedbackPopup').style.display = 'flex';
     });
 
+    // 피드백 창 닫기 버튼 클릭 시 창 닫기
     document.getElementById('closeFeedbackPopup').addEventListener('click', function () {
-        document.getElementById('feedbackPopup').classList.add('hidden'); // 피드백 창 닫기
+        document.getElementById('feedbackPopup').style.display = 'none';
     });
 
+    // 피드백 전송 버튼 클릭 시 Firebase에 피드백 저장
     document.getElementById('sendFeedbackButton').addEventListener('click', function () {
         const feedbackText = document.getElementById('feedbackText').value.trim();
         if (feedbackText) {
-            push(ref(db, 'feedback'), { // Firebase에 피드백 저장
-                userId: userId,
+            const feedbackRef = ref(db, 'feedback');
+            push(feedbackRef, {
                 feedback: feedbackText,
+                user: userId,
                 timestamp: Date.now()
             }).then(() => {
                 alert('피드백이 전송되었습니다.');
-                document.getElementById('feedbackPopup').classList.add('hidden'); // 피드백 전송 후 창 닫기
-                document.getElementById('feedbackText').value = ""; // 입력창 초기화
+                document.getElementById('feedbackPopup').style.display = 'none';
+                document.getElementById('feedbackText').value = ''; // 입력창 비우기
             }).catch((error) => {
                 console.error("피드백 전송 실패:", error);
             });
@@ -242,9 +246,9 @@ function canChangeNickname() {
 }
 
 const forbiddenWords = [
-    "병신", "시발", "ㅅㅂ", "ㅄ", 
-    "미친놈", "미친년도", "멍청이", "바보", "바보야", 
-    "X발", "또라이", "죽어", "광고", "홍보", 
+    "병신", "시발", "ㅅㅂ", "ㅄ",
+    "미친놈", "미친년도", "멍청이", "바보", "바보야",
+    "X발", "또라이", "죽어", "광고", "홍보",
     "구매", "팔아요"
 ];
 
