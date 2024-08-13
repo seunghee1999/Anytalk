@@ -3,14 +3,14 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.10/firebase
 import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDzGOMXdVmopdK6OdVRpi78twu2w8HnEtE",
-  authDomain: "anytalk-79a5a.firebaseapp.com",
-  databaseURL: "https://anytalk-79a5a-default-rtdb.firebaseio.com",
-  projectId: "anytalk-79a5a",
-  storageBucket: "anytalk-79a5a.appspot.com",
-  messagingSenderId: "266983278684",
-  appId: "1:266983278684:web:02651e780ff35bbea0be99",
-  measurementId: "G-DLBETBJPL7"
+  apiKey: "API_KEY",
+  authDomain: "your-app.firebaseapp.com",
+  databaseURL: "https://your-app.firebaseio.com",
+  projectId: "your-app",
+  storageBucket: "your-app.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID",
+  measurementId: "MEASUREMENT_ID"
 };
 
 const app = initializeApp(firebaseConfig);
