@@ -1,16 +1,15 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-analytics.js";
-import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+import { getDatabase, ref, set, onValue, onDisconnect, push } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "API_KEY",
-  authDomain: "your-app.firebaseapp.com",
-  databaseURL: "https://your-app.firebaseio.com",
-  projectId: "your-app",
-  storageBucket: "your-app.appspot.com",
-  messagingSenderId: "SENDER_ID",
-  appId: "APP_ID",
-  measurementId: "MEASUREMENT_ID"
+    apiKey: "AIzaSyDzGOMXdVmopdK6OdVRpi78twu2w8HnEtE",
+    authDomain: "anytalk-79a5a.firebaseapp.com",
+    projectId: "anytalk-79a5a",
+    storageBucket: "anytalk-79a5a.appspot.com",
+    messagingSenderId: "266983278684",
+    appId: "1:266983278684:web:02651e780ff35bbea0be99",
+    measurementId: "G-DLBETBJPL7"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -40,34 +39,34 @@ function updateUserCount() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     updateUserCount();
     loadMessagesFromFirebase();
     greetNewUser();
 
     let blockTimeout;
 
-    document.getElementById('chatbox').addEventListener('contextmenu', function(e) {
+    document.getElementById('chatbox').addEventListener('contextmenu', function (e) {
         e.preventDefault();
         if (e.target.classList.contains('message')) {
             showBlockPopup();
         }
     });
 
-    document.getElementById('chatbox').addEventListener('mousedown', function(e) {
+    document.getElementById('chatbox').addEventListener('mousedown', function (e) {
         if (e.target.classList.contains('message')) {
             blockTimeout = setTimeout(showBlockPopup, 2000);
         }
     });
 
-    document.getElementById('chatbox').addEventListener('mouseup', function(e) {
+    document.getElementById('chatbox').addEventListener('mouseup', function (e) {
         clearTimeout(blockTimeout);
     });
 
-    document.getElementById('sendButton').addEventListener('click', function() {
+    document.getElementById('sendButton').addEventListener('click', function () {
         const nickname = getStoredNickname();
         const chatInput = document.getElementById('chatInput');
-        
+
         if (chatInput.value.trim() !== "") {
             let message = chatInput.value;
             message = replaceForbiddenWords(message);
@@ -76,17 +75,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    document.getElementById('chatInput').addEventListener('keypress', function(e) {
+    document.getElementById('chatInput').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             document.getElementById('sendButton').click();
         }
     });
 
-    document.getElementById('settingsButton').addEventListener('click', function() {
+    document.getElementById('settingsButton').addEventListener('click', function () {
         document.getElementById('settingsMenu').classList.toggle('hidden');
     });
 
-    document.getElementById('nicknameButton').addEventListener('click', function() {
+    document.getElementById('nicknameButton').addEventListener('click', function () {
         if (canChangeNickname()) {
             document.getElementById('nicknamePopup').classList.remove('hidden');
         } else {
@@ -94,8 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 닉네임 저장 버튼 클릭 시 중복 확인
-    document.getElementById('saveNicknameButton').addEventListener('click', function() {
+    document.getElementById('saveNicknameButton').addEventListener('click', function () {
         const newNickname = document.getElementById('newNickname').value.trim();
         if (newNickname) {
             isNicknameAvailable(newNickname, (available) => {
@@ -110,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    document.getElementById('blockButton').addEventListener('click', function() {
+    document.getElementById('blockButton').addEventListener('click', function () {
         const blockManager = document.getElementById('blockManager');
         const blockedList = document.getElementById('blockedList');
         blockedList.innerHTML = '';
@@ -119,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
         blockedUsers.forEach((user, index) => {
             const listItem = document.createElement('li');
             listItem.textContent = user;
-            listItem.addEventListener('click', function() {
+            listItem.addEventListener('click', function () {
                 document.getElementById('unblockButton').classList.remove('hidden');
                 document.getElementById('unblockButton').setAttribute('data-username', user);
             });
@@ -129,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
         blockManager.classList.remove('hidden');
     });
 
-    document.getElementById('addBlockButton').addEventListener('click', function() {
+    document.getElementById('addBlockButton').addEventListener('click', function () {
         const nickname = document.getElementById('blockNicknameInput').value.trim();
         if (nickname) {
             let blockedUsers = getBlockedUsers();
@@ -141,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    document.getElementById('unblockButton').addEventListener('click', function() {
+    document.getElementById('unblockButton').addEventListener('click', function () {
         const username = this.getAttribute('data-username');
         let blockedUsers = getBlockedUsers();
         blockedUsers = blockedUsers.filter(user => user !== username);
@@ -150,26 +148,52 @@ document.addEventListener('DOMContentLoaded', function() {
         this.classList.add('hidden');
     });
 
-    document.getElementById('closeBlockManager').addEventListener('click', function() {
+    document.getElementById('closeBlockManager').addEventListener('click', function () {
         document.getElementById('blockManager').classList.add('hidden');
     });
 
-    document.getElementById('closeNicknamePopup').addEventListener('click', function() {
+    document.getElementById('closeNicknamePopup').addEventListener('click', function () {
         document.getElementById('nicknamePopup').classList.add('hidden');
     });
 
-    document.getElementById('newMessagePopup').addEventListener('click', function() {
+    document.getElementById('newMessagePopup').addEventListener('click', function () {
         scrollToBottom();
         this.classList.add('hidden');
     });
 
-    document.getElementById('notificationToggle').addEventListener('click', function() {
+    document.getElementById('notificationToggle').addEventListener('click', function () {
         notificationsEnabled = !notificationsEnabled;
         this.textContent = notificationsEnabled ? '알림 끄기' : '알림 켜기';
     });
 
-    document.getElementById('mainTitle').addEventListener('click', function() {
+    document.getElementById('mainTitle').addEventListener('click', function () {
         location.reload();
+    });
+
+    // 피드백 창 기능
+    document.getElementById('feedbackButton').addEventListener('click', function () {
+        document.getElementById('feedbackPopup').classList.remove('hidden'); // 피드백 창 열기
+    });
+
+    document.getElementById('closeFeedbackPopup').addEventListener('click', function () {
+        document.getElementById('feedbackPopup').classList.add('hidden'); // 피드백 창 닫기
+    });
+
+    document.getElementById('sendFeedbackButton').addEventListener('click', function () {
+        const feedbackText = document.getElementById('feedbackText').value.trim();
+        if (feedbackText) {
+            push(ref(db, 'feedback'), { // Firebase에 피드백 저장
+                userId: userId,
+                feedback: feedbackText,
+                timestamp: Date.now()
+            }).then(() => {
+                alert('피드백이 전송되었습니다.');
+                document.getElementById('feedbackPopup').classList.add('hidden'); // 피드백 전송 후 창 닫기
+                document.getElementById('feedbackText').value = ""; // 입력창 초기화
+            }).catch((error) => {
+                console.error("피드백 전송 실패:", error);
+            });
+        }
     });
 
     window.addEventListener('beforeunload', function (event) {
@@ -331,7 +355,7 @@ function updateBlockedList() {
     blockedUsers.forEach((user, index) => {
         const listItem = document.createElement('li');
         listItem.textContent = user;
-        listItem.addEventListener('click', function() {
+        listItem.addEventListener('click', function () {
             document.getElementById('unblockButton').classList.remove('hidden');
             document.getElementById('unblockButton').setAttribute('data-username', user);
         });

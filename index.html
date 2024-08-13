@@ -16,6 +16,7 @@
                     <div id="settingsMenu" class="hidden">
                         <span id="nicknameButton">닉네임 변경</span>
                         <span id="blockButton">차단 관리</span>
+                        <span id="feedbackButton">피드백</span> <!-- 피드백 버튼 추가 -->
                         <span id="notificationToggle">알림 끄기</span>
                     </div>
                 </div>
@@ -48,6 +49,13 @@
             <button id="addBlockButton">차단 추가</button>
             <ul id="blockedList" class="blocked-list"></ul>
             <button id="unblockButton" class="hidden">해제하기</button>
+        </div>
+
+        <!-- 피드백 창 -->
+        <div id="feedbackPopup" class="feedback-popup hidden"> <!-- 기본적으로 hidden 클래스 추가 -->
+            <textarea id="feedbackText" placeholder="피드백을 입력하세요..."></textarea>
+            <button id="sendFeedbackButton">전송</button>
+            <button id="closeFeedbackPopup" class="close-popup">닫기</button>
         </div>
     </div>
 
