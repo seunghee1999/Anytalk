@@ -25,13 +25,168 @@ const userStatusRef = ref(db, 'users/' + userId);
 set(userStatusRef, { online: true });
 onDisconnect(userStatusRef).set({ online: false });
 
-// 실시간 접속자 수 표시
-const userCountRef = ref(db, 'users');
-onValue(userCountRef, (snapshot) => {
-  const users = snapshot.val();
-  const onlineUsers = Object.values(users).filter(user => user.online).length;
-  document.getElementById('userCount').textContent = `접속자: ${onlineUsers}명`;
+// 접속자 수 실시간 업데이트 최적화
+function updateUserCount() {
+    const userCountRef = ref(db, 'users');
+    let timeout;
+
+    onValue(userCountRef, (snapshot) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            const users = snapshot.val();
+            const onlineUsers = Object.values(users).filter(user => user.online).length;
+            document.getElementById('userCount').textContent = `접속자: ${onlineUsers}명`;
+        }, 500); // 0.5초 지연 후 업데이트
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateUserCount();
+    loadMessagesFromFirebase();
+    greetNewUser();
+
+    let blockTimeout;
+
+    document.getElementById('chatbox').addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        if (e.target.classList.contains('message')) {
+            showBlockPopup();
+        }
+    });
+
+    document.getElementById('chatbox').addEventListener('mousedown', function(e) {
+        if (e.target.classList.contains('message')) {
+            blockTimeout = setTimeout(showBlockPopup, 2000);
+        }
+    });
+
+    document.getElementById('chatbox').addEventListener('mouseup', function(e) {
+        clearTimeout(blockTimeout);
+    });
+
+    document.getElementById('sendButton').addEventListener('click', function() {
+        const nickname = getStoredNickname();
+        const chatInput = document.getElementById('chatInput');
+        
+        if (chatInput.value.trim() !== "") {
+            let message = chatInput.value;
+            message = replaceForbiddenWords(message);
+            addMessage(nickname, message, 'right');
+            chatInput.value = "";
+        }
+    });
+
+    document.getElementById('chatInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('sendButton').click();
+        }
+    });
+
+    document.getElementById('settingsButton').addEventListener('click', function() {
+        document.getElementById('settingsMenu').classList.toggle('hidden');
+    });
+
+    document.getElementById('nicknameButton').addEventListener('click', function() {
+        if (canChangeNickname()) {
+            document.getElementById('nicknamePopup').classList.remove('hidden');
+        } else {
+            alert('닉네임은 하루에 한 번만 변경할 수 있습니다.');
+        }
+    });
+
+    // 닉네임 저장 버튼 클릭 시 중복 확인
+    document.getElementById('saveNicknameButton').addEventListener('click', function() {
+        const newNickname = document.getElementById('newNickname').value.trim();
+        if (newNickname) {
+            isNicknameAvailable(newNickname, (available) => {
+                if (available) {
+                    setStoredNickname(newNickname);
+                    document.getElementById('nicknamePopup').classList.add('hidden');
+                    alert('닉네임이 변경되었습니다.');
+                } else {
+                    alert('이미 사용 중인 닉네임입니다. 다른 닉네임을 입력하세요.');
+                }
+            });
+        }
+    });
+
+    document.getElementById('blockButton').addEventListener('click', function() {
+        const blockManager = document.getElementById('blockManager');
+        const blockedList = document.getElementById('blockedList');
+        blockedList.innerHTML = '';
+
+        const blockedUsers = getBlockedUsers();
+        blockedUsers.forEach((user, index) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = user;
+            listItem.addEventListener('click', function() {
+                document.getElementById('unblockButton').classList.remove('hidden');
+                document.getElementById('unblockButton').setAttribute('data-username', user);
+            });
+            blockedList.appendChild(listItem);
+        });
+
+        blockManager.classList.remove('hidden');
+    });
+
+    document.getElementById('addBlockButton').addEventListener('click', function() {
+        const nickname = document.getElementById('blockNicknameInput').value.trim();
+        if (nickname) {
+            let blockedUsers = getBlockedUsers();
+            if (!blockedUsers.includes(nickname)) {
+                blockedUsers.push(nickname);
+                saveBlockedUsers(blockedUsers);
+                updateBlockedList();
+            }
+        }
+    });
+
+    document.getElementById('unblockButton').addEventListener('click', function() {
+        const username = this.getAttribute('data-username');
+        let blockedUsers = getBlockedUsers();
+        blockedUsers = blockedUsers.filter(user => user !== username);
+        saveBlockedUsers(blockedUsers);
+        updateBlockedList();
+        this.classList.add('hidden');
+    });
+
+    document.getElementById('closeBlockManager').addEventListener('click', function() {
+        document.getElementById('blockManager').classList.add('hidden');
+    });
+
+    document.getElementById('closeNicknamePopup').addEventListener('click', function() {
+        document.getElementById('nicknamePopup').classList.add('hidden');
+    });
+
+    document.getElementById('newMessagePopup').addEventListener('click', function() {
+        scrollToBottom();
+        this.classList.add('hidden');
+    });
+
+    document.getElementById('notificationToggle').addEventListener('click', function() {
+        notificationsEnabled = !notificationsEnabled;
+        this.textContent = notificationsEnabled ? '알림 끄기' : '알림 켜기';
+    });
+
+    document.getElementById('mainTitle').addEventListener('click', function() {
+        location.reload();
+    });
+
+    window.addEventListener('beforeunload', function (event) {
+        set(userStatusRef, { online: false });
+        event.returnValue = '';
+    });
 });
+
+// Firebase에서 사용 중인 닉네임을 체크하는 함수
+function isNicknameAvailable(nickname, callback) {
+    const usersRef = ref(db, 'users');
+    onValue(usersRef, (snapshot) => {
+        const users = snapshot.val();
+        const nicknameExists = Object.values(users).some(user => user.nickname === nickname);
+        callback(!nicknameExists);
+    });
+}
 
 function generateRandomNickname() {
     const adjectives = ["Happy", "Brave", "Clever", "Witty", "Kind"];
@@ -124,6 +279,11 @@ function addMessage(nickname, message, position, fromFirebase = false) {
 
     chatbox.appendChild(newMessage);
 
+    // 메시지가 100개를 초과할 경우 오래된 메시지를 삭제
+    if (chatbox.childElementCount > 100) {
+        chatbox.removeChild(chatbox.firstChild);
+    }
+
     if (!fromFirebase) {
         addMessageToFirebase(nickname, message, position);
     }
@@ -163,121 +323,18 @@ function greetNewUser() {
     addMessage("시스템", greetingMessage, 'left', true);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    loadMessagesFromFirebase();
-    greetNewUser();
+function updateBlockedList() {
+    const blockedList = document.getElementById('blockedList');
+    blockedList.innerHTML = '';
 
-    let blockTimeout;
-
-    document.getElementById('chatbox').addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        if (e.target.classList.contains('message')) {
-            showBlockPopup();
-        }
-    });
-
-    document.getElementById('chatbox').addEventListener('mousedown', function(e) {
-        if (e.target.classList.contains('message')) {
-            blockTimeout = setTimeout(showBlockPopup, 2000);
-        }
-    });
-
-    document.getElementById('chatbox').addEventListener('mouseup', function(e) {
-        clearTimeout(blockTimeout);
-    });
-
-    document.getElementById('sendButton').addEventListener('click', function() {
-        const nickname = getStoredNickname();
-        const chatInput = document.getElementById('chatInput');
-        
-        if (chatInput.value.trim() !== "") {
-            let message = chatInput.value;
-            message = replaceForbiddenWords(message);
-            addMessage(nickname, message, 'right');
-            chatInput.value = "";
-        }
-    });
-
-    document.getElementById('chatInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            document.getElementById('sendButton').click();
-        }
-    });
-
-    document.getElementById('settingsButton').addEventListener('click', function() {
-        document.getElementById('settingsMenu').classList.toggle('hidden');
-    });
-
-    document.getElementById('nicknameButton').addEventListener('click', function() {
-        if (canChangeNickname()) {
-            document.getElementById('nicknamePopup').classList.remove('hidden');
-        } else {
-            alert('닉네임은 하루에 한 번만 변경할 수 있습니다.');
-        }
-    });
-
-    document.getElementById('saveNicknameButton').addEventListener('click', function() {
-        const newNickname = document.getElementById('newNickname').value.trim();
-        if (newNickname) {
-            setStoredNickname(newNickname);
-            document.getElementById('nicknamePopup').classList.add('hidden');
-            alert('닉네임이 변경되었습니다.');
-        }
-    });
-
-    document.getElementById('blockButton').addEventListener('click', function() {
-        const blockManager = document.getElementById('blockManager');
-        const blockedList = document.getElementById('blockedList');
-        blockedList.innerHTML = '';
-
-        const blockedUsers = getBlockedUsers();
-        blockedUsers.forEach((user, index) => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${index + 1}. ${user}`;
-            listItem.addEventListener('click', function() {
-                document.getElementById('unblockButton').classList.remove('hidden');
-                document.getElementById('unblockButton').setAttribute('data-username', user);
-            });
-            blockedList.appendChild(listItem);
+    const blockedUsers = getBlockedUsers();
+    blockedUsers.forEach((user, index) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = user;
+        listItem.addEventListener('click', function() {
+            document.getElementById('unblockButton').classList.remove('hidden');
+            document.getElementById('unblockButton').setAttribute('data-username', user);
         });
-
-        blockManager.classList.remove('hidden');
+        blockedList.appendChild(listItem);
     });
-
-    document.getElementById('unblockButton').addEventListener('click', function() {
-        const username = this.getAttribute('data-username');
-        let blockedUsers = getBlockedUsers();
-        blockedUsers = blockedUsers.filter(user => user !== username);
-        saveBlockedUsers(blockedUsers);
-        alert(`${username}님이 차단 해제되었습니다.`);
-        this.classList.add('hidden');
-        document.getElementById('blockManager').classList.add('hidden');
-    });
-
-    document.getElementById('closeBlockManager').addEventListener('click', function() {
-        document.getElementById('blockManager').classList.add('hidden');
-    });
-
-    document.getElementById('closeNicknamePopup').addEventListener('click', function() {
-        document.getElementById('nicknamePopup').classList.add('hidden');
-    });
-
-    document.getElementById('newMessagePopup').addEventListener('click', function() {
-        scrollToBottom();
-        this.classList.add('hidden');
-    });
-
-    document.getElementById('notificationToggle').addEventListener('click', function() {
-        notificationsEnabled = !notificationsEnabled;
-        this.textContent = notificationsEnabled ? '알림 끄기' : '알림 켜기';
-    });
-
-    document.getElementById('mainTitle').addEventListener('click', function() {
-        location.reload();
-    });
-
-    window.addEventListener('beforeunload', function (event) {
-        set(userStatusRef, { online: false });
-        event.returnValue = '';
-    });
-});
+}
